@@ -1,0 +1,58 @@
+#define trigPin 14
+#define echoPin 12
+#define buzzerPin 04
+
+long duration;
+int distance;
+String command = "";
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);a
+  pinMode(buzzerPin, OUTPUT);
+  digitalWrite(buzzerPin, HIGH);  // Buzzer OFF (active LOW)
+}
+
+void loop() {
+  // Send ultrasonic pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Measure echo time
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  // Send distance to Processing
+  Serial.println(distance);
+
+  // Check if Processing sent any command
+  if (Serial.available()) {
+    command = Serial.readStringUntil('\n');
+
+    if (command == "CLEAR") {
+      beepShort();
+    } else if (command == "GAME_OVER") {
+      beepLong();
+    } else if (command == "RESTART") {
+      beepLong();
+    }
+  }
+
+  delay(50);
+}
+
+void beepShort() {
+  digitalWrite(buzzerPin, LOW);  // Buzzer ON
+  delay(100);
+  digitalWrite(buzzerPin, HIGH); // Buzzer OFF
+}
+
+void beepLong() {
+  digitalWrite(buzzerPin, LOW);  // Buzzer ON
+  delay(600);
+  digitalWrite(buzzerPin, HIGH); // Buzzer OFF
+}
